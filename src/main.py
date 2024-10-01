@@ -1,6 +1,8 @@
 import cv2
 from threading import Thread
 from custom_types import QueueType
+from queue import Queue
+from filters.hsv import HSVFilter
 from filters.resize import ResizeFilter
 
 
@@ -39,18 +41,25 @@ def sink(input_queue: QueueType, window_name: str = "Sink frame") -> None:
 
 
 def main(device: int = 0) -> None:
-    resize_thread = ResizeFilter()
+    source_queue: QueueType = Queue()
+    sink_queue: QueueType = Queue()
 
-    source_thread = Thread(target=source, args=(resize_thread.input_queue, device))
-    sink_thread = Thread(target=sink, args=(resize_thread.output_queue,))
+    pipeline = [
+        Thread(target=source, args=(source_queue, device)),
+        ResizeFilter(),
+        HSVFilter(),
+        Thread(target=sink, args=(sink_queue,)),
+    ]
 
-    source_thread.start()
-    resize_thread.start()
-    sink_thread.start()
+    pipeline[1].input_queue = source_queue
+    pipeline[2].input_queue = pipeline[1].output_queue
+    pipeline[2].output_queue = sink_queue
 
-    source_thread.join()
-    resize_thread.join()
-    sink_thread.join()
+    for pipeline_thread in pipeline:
+        pipeline_thread.start()
+
+    for pipeline_thread in pipeline:
+        pipeline_thread.join()
 
 
 if __name__ == "__main__":
