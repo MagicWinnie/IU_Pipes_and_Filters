@@ -1,8 +1,8 @@
-from cv2.typing import MatLike
-from threading import Thread, Event
 from queue import Queue
+from threading import Thread, Event
 
 from custom_types import QueueType
+from cv2.typing import MatLike
 
 
 class BaseFilter(Thread):
@@ -24,4 +24,5 @@ class BaseFilter(Thread):
     def stop(self):
         self.stop_event.set()
 
-    def process(self, frame: MatLike): ...
+    def process(self, frame: MatLike):
+        ...
