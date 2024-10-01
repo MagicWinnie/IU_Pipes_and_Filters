@@ -2,10 +2,7 @@ import cv2
 from threading import Thread
 from custom_types import QueueType
 from queue import Queue
-from filters.hsv import HSVFilter
-from filters.resize import ResizeFilter
-from filters.mirror import MirrorFilter
-from filters.blur import BlurFilter
+from filters import ResizeFilter, BlurFilter, HSVFilter, MirrorFilter
 
 
 ESCAPE = 27
