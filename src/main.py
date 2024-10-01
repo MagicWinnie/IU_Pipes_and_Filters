@@ -4,6 +4,7 @@ from custom_types import QueueType
 from queue import Queue
 from filters.hsv import HSVFilter
 from filters.resize import ResizeFilter
+from filters.mirror import MirrorFilter
 
 
 ESCAPE = 27
@@ -48,12 +49,14 @@ def main(device: int = 0) -> None:
         Thread(target=source, args=(source_queue, device)),
         ResizeFilter(),
         HSVFilter(),
+        MirrorFilter(),
         Thread(target=sink, args=(sink_queue,)),
     ]
 
     pipeline[1].input_queue = source_queue
     pipeline[2].input_queue = pipeline[1].output_queue
-    pipeline[2].output_queue = sink_queue
+    pipeline[3].input_queue = pipeline[2].output_queue
+    pipeline[3].output_queue = sink_queue
 
     for pipeline_thread in pipeline:
         pipeline_thread.start()
